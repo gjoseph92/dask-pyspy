@@ -1,13 +1,15 @@
 import asyncio
-from contextlib import contextmanager
-import tempfile
+import logging
 import os
 import signal
-from typing import List, Optional, Iterable
-import logging
+import tempfile
+from contextlib import contextmanager
+from typing import Iterable, List, Optional, Union
 
 import distributed
 from distributed.diagnostics import SchedulerPlugin
+
+from .prctl import allow_ptrace
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +48,7 @@ class PySpyScheduler(SchedulerPlugin):
         self.pyspy_args.extend(extra_pyspy_args)
         self.proc = None
         self._tempfile = None
+        self._run_failed_msg = None
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__} {self.pyspy_args}>"
@@ -69,6 +72,17 @@ class PySpyScheduler(SchedulerPlugin):
             scheduler.handlers[self._HANDLER_NAME] = self._get_py_spy_profile
 
         pid = os.getpid()
+
+        try:
+            # Allow subprocesses of this process to ptrace it.
+            # Since we'll start py-spy as a subprocess, it will be below the current PID
+            # in the process tree, and therefore allowed to trace its parent.
+            allow_ptrace(pid)
+        except OSError as e:
+            self._run_failed_msg = str(e)
+        else:
+            self._run_failed_msg = None
+
         self.proc = await asyncio.create_subprocess_exec(
             "py-spy",
             "record",
@@ -88,9 +102,10 @@ class PySpyScheduler(SchedulerPlugin):
         try:
             self.proc.send_signal(signal.SIGINT)
         except ProcessLookupError:
-            logger.warning(
-                f"py-spy subprocess {self.proc.pid} already terminated (it probably never ran?)."
-            )
+            msg = f"py-spy subprocess {self.proc.pid} already terminated (it probably never ran?)."
+            if self._run_failed_msg:
+                msg += "\nNOTE: " + self._run_failed_msg
+            logger.warning(msg)
 
         stdout, stderr = await self.proc.communicate()  # TODO timeout
         retcode = self.proc.returncode
@@ -147,7 +162,7 @@ def start_pyspy_on_scheduler(
     """
     client = client or distributed.worker.get_client()
 
-    async def _inject(dask_scheduler: distributed.Scheduler):
+    async def _inject_pyspy(dask_scheduler: distributed.Scheduler):
         plugin = PySpyScheduler(
             output=output,
             format=format,
@@ -164,11 +179,11 @@ def start_pyspy_on_scheduler(
         await plugin.start(dask_scheduler)
         dask_scheduler.add_plugin(plugin)
 
-    client.run_on_scheduler(_inject)
+    client.run_on_scheduler(_inject_pyspy)
 
 
 def get_profile_from_scheduler(
-    path: str, client: Optional[distributed.Client] = None
+    path: Union[str, os.PathLike], client: Optional[distributed.Client] = None
 ) -> None:
     """
     Stop the current `PySpyScheduler` plugin, send back its profile data, and write it to ``path``.
@@ -188,7 +203,7 @@ def get_profile_from_scheduler(
 
 @contextmanager
 def pyspy_on_scheduler(
-    output: str,
+    output: Union[str, os.PathLike],
     format: str = "speedscope",
     rate: int = 100,
     subprocesses: bool = True,
