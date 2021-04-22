@@ -37,6 +37,27 @@ python -m pip install git+https://github.com/gjoseph92/distributed-pyspy.git
 
 ## Privileges
 
-You may need to run the scheduler process as root for py-spy to be able to profile it (especially on macOS). See https://github.com/benfred/py-spy#when-do-you-need-to-run-as-sudo
+You may need to run the scheduler process as root for py-spy to be able to profile it (especially on macOS). See https://github.com/benfred/py-spy#when-do-you-need-to-run-as-sudo.
 
-In a container, even if the scheduler is running as root, you'll need the `SYS_PTRACE` capability: https://github.com/benfred/py-spy#how-do-i-run-py-spy-in-docker
+In a Docker container, `distributed-pyspy` should "just work" as long as your Docker/moby version is >= 20.10.6.
+
+Why that version? [moby/moby#42083](https://github.com/moby/moby/pull/42083/files) recently allowlisted the `process_vm_readv` system call that py-spy uses, which used to be blocked unless you set `--cap-add SYS_PTRACE`. If you're stuck on a very slightly older version of Docker, you _could_ use the [`seccomp.json`](https://github.com/clubby789/moby/blob/d39b075302c27f77b2de413697a5aacb034d8286/profiles/seccomp/default.json) file from 20.10.6 via `--seccomp=moby-20.10.6-seccomp.json`, if you happen to be reluctant to `--cap-add SYS_PTRACE`.
+
+On Ubuntu-based containers, ptrace system calls are [further blocked](https://www.kernel.org/doc/Documentation/admin-guide/LSM/Yama.rst): processes are prohibited from ptracing each other even within the same UID. To work around this, `distributed-pyspy` automatically uses [`prctl(2)`](https://man7.org/linux/man-pages/man2/prctl.2.html) to mark the scheduler process as ptrace-able by itself and any child processes, then launches py-spy as a child process.
+
+If you're using an older Docker version, then https://github.com/benfred/py-spy#how-do-i-run-py-spy-in-docker still applies.
+
+## Development
+
+Install [Poetry](https://python-poetry.org/docs/#installation). To create a virtual environment, install dev dependencies, and install the package for local development:
+
+```
+$ poetry install -E test
+```
+
+There is one very very basic end-to-end test. Running it requires Docker and docker-compose, though the building and running of the containers is managed by [pytest-docker-compose](https://github.com/pytest-docker-compose/pytest-docker-compose), so all you have to do is:
+
+```
+$ pytest tests
+```
+and wait a long time for the image to build and run.
