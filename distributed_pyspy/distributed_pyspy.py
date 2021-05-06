@@ -4,7 +4,7 @@ import os
 import signal
 import tempfile
 from contextlib import contextmanager
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Union, TypeVar
 
 import distributed
 from distributed.diagnostics import SchedulerPlugin
@@ -53,7 +53,7 @@ class PySpyScheduler(SchedulerPlugin):
     def __repr__(self) -> str:
         return f"<{type(self).__name__} {self.pyspy_args}>"
 
-    async def start(self, scheduler):
+    async def start(self, scheduler) -> Optional[RuntimeError]:
         if self.output is None:
             self._tempfile = tempfile.NamedTemporaryFile(suffix="pyspy.json")
             self.output = self._tempfile.name
@@ -94,32 +94,53 @@ class PySpyScheduler(SchedulerPlugin):
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
+        # check if it terminated immediately
+        await asyncio.sleep(0.2)
+        if self.proc.returncode is not None:
+            return await self._handle_process_done()
 
-    async def _stop(self) -> Optional[int]:
+    async def _stop(self) -> Optional[RuntimeError]:
         if self.proc is None:
-            return None
+            return RuntimeError(
+                "No py-spy subprocess found. Either `get_profile_from_scheduler()` was "
+                "already called, or the process never started successfully."
+            )
 
         try:
             self.proc.send_signal(signal.SIGINT)
         except ProcessLookupError:
             msg = f"py-spy subprocess {self.proc.pid} already terminated (it probably never ran?)."
-            if self._run_failed_msg:
-                msg += "\nNOTE: " + self._run_failed_msg
+            self._run_failed_msg = (
+                msg
+                if not self._run_failed_msg
+                else f"{msg}\nNOTE:{self._run_failed_msg}"
+            )
             logger.warning(msg)
 
+        return await self._handle_process_done()
+
+    async def _handle_process_done(self) -> Optional[RuntimeError]:
         stdout, stderr = await self.proc.communicate()  # TODO timeout
         retcode = self.proc.returncode
+        error: Optional[Exception] = None
         if retcode != 0:
-            logging.warn(f"py-spy exited with code {retcode}")
-            logging.warn(f"py-spy stderr:\n{stderr.decode()}")
-            logging.warn(f"py-spy stdout:\n{stdout.decode()}")
+            msgs = [
+                f"py-spy exited with code {retcode}",
+                f"py-spy stderr:\n{stderr.decode()}",
+                f"py-spy stdout:\n{stdout.decode()}",
+            ]
+            if self._run_failed_msg:
+                msgs.insert(0, self._run_failed_msg)
+            for msg in msgs:
+                logging.warn(msg)
+            error = RuntimeError("\n".join(msgs))
 
         self.proc = None
         # Remove our injected handler
         del self.scheduler.handlers[self._HANDLER_NAME]
         # TODO should we remove the plugin as well?
         # At this point, there's not much reason to be using a plugin...
-        return retcode
+        return error
 
     def _maybe_close_tempfile(self):
         if self._tempfile is not None:
@@ -127,20 +148,29 @@ class PySpyScheduler(SchedulerPlugin):
         self._tempfile = None
 
     # This handler gets injected into the scheduler
-    async def _get_py_spy_profile(self, comm=None) -> Optional[bytes]:
-        retcode = await self._stop()
-        if retcode == 0:
+    async def _get_py_spy_profile(self, comm=None) -> Union[bytes, RuntimeError]:
+        error = await self._stop()
+        if error is None:
             with open(self.output, "rb") as f:
-                data = f.read()  # TODO streaming!
+                result = f.read()  # TODO streaming!
         else:
-            data = None
+            result = error
 
         self._maybe_close_tempfile()
-        return data
+        return result
 
     async def close(self):
         await self._stop()
         self._maybe_close_tempfile()
+
+
+T = TypeVar("T")
+
+
+def _handle_error(result: Union[RuntimeError, T]) -> T:
+    if isinstance(result, RuntimeError):
+        raise result
+    return result
 
 
 def start_pyspy_on_scheduler(
@@ -162,7 +192,9 @@ def start_pyspy_on_scheduler(
     """
     client = client or distributed.worker.get_client()
 
-    async def _inject_pyspy(dask_scheduler: distributed.Scheduler):
+    async def _inject_pyspy(
+        dask_scheduler: distributed.Scheduler,
+    ) -> Optional[RuntimeError]:
         plugin = PySpyScheduler(
             output=output,
             format=format,
@@ -176,10 +208,10 @@ def start_pyspy_on_scheduler(
             native=native,
             extra_pyspy_args=extra_pyspy_args,
         )
-        await plugin.start(dask_scheduler)
         dask_scheduler.add_plugin(plugin)
+        return await plugin.start(dask_scheduler)
 
-    client.run_on_scheduler(_inject_pyspy)
+    _handle_error(client.run_on_scheduler(_inject_pyspy))
 
 
 def get_profile_from_scheduler(
@@ -193,12 +225,9 @@ def get_profile_from_scheduler(
     async def _get_profile():
         return await getattr(client.scheduler, PySpyScheduler._HANDLER_NAME)()
 
-    data = client.sync(_get_profile)
-    if data:
-        with open(path, "wb") as f:
-            f.write(data)
-    else:
-        logger.warning("No data from py-spy profile!")
+    data = _handle_error(client.sync(_get_profile))
+    with open(path, "wb") as f:
+        f.write(data)
 
 
 @contextmanager
