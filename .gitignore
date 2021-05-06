@@ -131,3 +131,4 @@ dmypy.json
 .vscode
 dask-worker-space
 profile.json
+requirements.txt
