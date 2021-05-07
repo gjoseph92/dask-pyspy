@@ -30,7 +30,7 @@ def core_test(client: distributed.Client, tmp_path: pathlib.Path) -> None:
     platform.system() != "Linux", reason="py-spy always requires root on macOS"
 )
 def test_local(tmp_path):
-    client = distributed.Client()
+    client = distributed.Client(set_as_default=False)
     core_test(client, tmp_path)
     client.shutdown()
     client.close()
@@ -39,7 +39,7 @@ def test_local(tmp_path):
 def test_prctl_on_docker(module_scoped_container_getter, tmp_path):
     network_info = module_scoped_container_getter.get("scheduler").network_info[0]
     client = distributed.Client(
-        f"tcp://{network_info.hostname}:{network_info.host_port}"
+        f"tcp://{network_info.hostname}:{network_info.host_port}", set_as_default=False
     )
 
     core_test(client, tmp_path)
