@@ -1309,12 +1309,12 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 
 [extras]
 docker = ["numpy", "pandas", "dask", "bokeh", "ipython", "jupyter-client", "ipykernel"]
-test = ["numpy", "pandas", "pytest", "pytest-docker-compose", "pytest-asyncio"]
+test = ["numpy", "pandas", "dask", "pytest", "pytest-docker-compose", "pytest-asyncio"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "56a550ddac60901eb759879cd6be1bc2078ca16f86b264a82f9db0bc00c40687"
+content-hash = "5ea7cb0a3b21dc8496ca4f93f5ffcf39af04a3722de64862bde85cfe314eb41a"
 
 [metadata.files]
 aiobotocore = [

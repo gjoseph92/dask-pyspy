@@ -28,7 +28,7 @@ coiled = "^0.0.39"
 
 [tool.poetry.extras]
 docker = ["numpy", "pandas", "dask", "bokeh", "ipython", "jupyter-client", "ipykernel"]
-test = ["numpy", "pandas", "pytest", "pytest-docker-compose", "pytest-asyncio"]
+test = ["numpy", "pandas", "dask", "pytest", "pytest-docker-compose", "pytest-asyncio"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
