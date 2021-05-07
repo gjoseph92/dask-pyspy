@@ -30,8 +30,10 @@ class PySpyScheduler(SchedulerPlugin):
         nonblocking: bool = False,
         native: bool = False,
         extra_pyspy_args: Iterable[str] = (),
+        log_level: Optional[str] = None,
     ) -> None:
         self.output = output
+        self.log_level = log_level
         self.pyspy_args: List[str] = ["--format", format, "--rate", str(rate)] + [
             flag
             for flag, active in {
@@ -93,6 +95,11 @@ class PySpyScheduler(SchedulerPlugin):
             *self.pyspy_args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            env=(
+                None
+                if self.log_level is None
+                else dict(os.environ, RUST_LOG=self.log_level)
+            ),
         )
         # check if it terminated immediately
         await asyncio.sleep(0.2)
@@ -185,6 +192,7 @@ def start_pyspy_on_scheduler(
     nonblocking: bool = False,
     native: bool = False,
     extra_pyspy_args: Iterable[str] = (),
+    log_level: Optional[str] = None,
     client: Optional[distributed.Client] = None,
 ) -> None:
     """
@@ -207,6 +215,7 @@ def start_pyspy_on_scheduler(
             nonblocking=nonblocking,
             native=native,
             extra_pyspy_args=extra_pyspy_args,
+            log_level=log_level,
         )
         dask_scheduler.add_plugin(plugin)
         return await plugin.start(dask_scheduler)
@@ -243,6 +252,7 @@ def pyspy_on_scheduler(
     nonblocking: bool = False,
     native: bool = False,
     extra_pyspy_args: Iterable[str] = (),
+    log_level: Optional[str] = None,
     client: Optional[distributed.Client] = None,
 ):
     """
@@ -279,6 +289,12 @@ def pyspy_on_scheduler(
         Collect stack traces from native extensions written in Cython, C or C++
     extra_pyspy_args:
         Iterable of any extra arguments to pass to ``py-spy``.
+    log_level:
+        The log level for ``py-spy`` (useful for debugging py-spy issues).
+        If None (default), the defaults are unchanged (only error-level logs).
+        Typically a string like ``"warn"``, ``"info"``, etc, which is set as the ``RUST_LOG``
+        environment variable. See documentation of the ``env_logger`` crate for details:
+        https://docs.rs/env_logger/0.8.3/env_logger/#enabling-logging.
     client:
         The distributed Client to use. If None (default), the default client is used.
     """
@@ -296,6 +312,7 @@ def pyspy_on_scheduler(
         nonblocking=nonblocking,
         native=native,
         extra_pyspy_args=extra_pyspy_args,
+        log_level=log_level,
         client=client,
     )
     try:
