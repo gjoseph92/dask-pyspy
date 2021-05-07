@@ -170,6 +170,8 @@ class PySpyScheduler(SchedulerPlugin):
     async def close(self):
         try:
             await self._stop()
+        except RuntimeError:
+            pass
         finally:
             self._maybe_close_tempfile()
 
