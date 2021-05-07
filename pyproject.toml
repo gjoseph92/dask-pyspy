@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "distributed-pyspy"
-version = "0.1.0"
+version = "0.2.0"
 description = "Profile the dask distributed scheduler with py-spy"
 authors = ["Gabe Joseph <gjoseph92@gmail.com>"]
 license = "MIT"
