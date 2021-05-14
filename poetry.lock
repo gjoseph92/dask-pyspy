@@ -93,6 +93,17 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
 [[package]]
+name = "autoflake"
+version = "1.4"
+description = "Removes unused imports and unused variables"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pyflakes = ">=1.1.0"
+
+[[package]]
 name = "backcall"
 version = "0.2.0"
 description = "Specifications for callback functions passed in to an API"
@@ -118,25 +129,26 @@ typecheck = ["mypy"]
 
 [[package]]
 name = "black"
-version = "20.8b1"
+version = "21.5b1"
 description = "The uncompromising code formatter."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.6.2"
 
 [package.dependencies]
 appdirs = "*"
 click = ">=7.1.2"
 mypy-extensions = ">=0.4.3"
-pathspec = ">=0.6,<1"
+pathspec = ">=0.8.1,<1"
 regex = ">=2020.1.8"
 toml = ">=0.10.1"
-typed-ast = ">=1.4.0"
-typing-extensions = ">=3.7.4"
+typed-ast = {version = ">=1.4.2", markers = "python_version < \"3.8\""}
+typing-extensions = {version = ">=3.7.4", markers = "python_version < \"3.8\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
-d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
+d = ["aiohttp (>=3.6.0)", "aiohttp-cors"]
+python2 = ["typed-ast (>=1.4.2)"]
 
 [[package]]
 name = "bokeh"
@@ -264,6 +276,14 @@ description = "Cross-platform colored terminal text."
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
+name = "com2ann"
+version = "0.1.1"
+description = "Tool to translate type comments to annotations."
+category = "dev"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "commonmark"
@@ -663,6 +683,22 @@ pywin32 = {version = ">=1.0", markers = "sys_platform == \"win32\""}
 traitlets = "*"
 
 [[package]]
+name = "libcst"
+version = "0.3.18"
+description = "A concrete syntax tree with AST-like properties for Python 3.5, 3.6, 3.7 and 3.8 programs."
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+pyyaml = ">=5.2"
+typing-extensions = ">=3.7.4.2"
+typing-inspect = ">=0.4.0"
+
+[package.extras]
+dev = ["black (==20.8b1)", "codecov (>=2.1.4)", "coverage (>=4.5.4)", "fixit (==0.1.1)", "flake8 (>=3.7.8)", "hypothesis (>=4.36.0)", "hypothesmith (>=0.0.4)", "isort (==5.5.3)", "jupyter (>=1.0.0)", "nbsphinx (>=0.4.2)", "pyre-check (==0.0.41)", "sphinx-rtd-theme (>=0.4.3)", "prompt-toolkit (>=2.0.9)", "tox (>=3.18.1)"]
+
+[[package]]
 name = "locket"
 version = "0.2.1"
 description = "File-based locks for Python for Linux and Windows"
@@ -906,6 +942,20 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pybetter"
+version = "0.3.6.1"
+description = "Tool for fixing trivial problems with your code."
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+click = ">=7.0,<8.0"
+libcst = ">=0.3.16,<0.4.0"
+pyemojify = ">=0.2.0,<0.3.0"
+pygments = ">=2.5.2,<3.0.0"
+
+[[package]]
 name = "pycodestyle"
 version = "2.7.0"
 description = "Python style guide checker"
@@ -920,6 +970,17 @@ description = "C parser in Python"
 category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
+name = "pyemojify"
+version = "0.2.0"
+description = "Substitutes emoji aliases (like :sparkling_heart:) to emoji raw characters."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+click = ">=4.1"
 
 [[package]]
 name = "pyflakes"
@@ -1048,6 +1109,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pyupgrade"
+version = "2.15.0"
+description = "A tool to automatically upgrade syntax for newer versions."
+category = "dev"
+optional = false
+python-versions = ">=3.6.1"
+
+[package.dependencies]
+tokenize-rt = ">=3.2.0"
+
+[[package]]
 name = "pywin32"
 version = "227"
 description = "Python for Window Extensions"
@@ -1146,6 +1218,24 @@ python-versions = "*"
 botocore = ">=1.12.36,<2.0a.0"
 
 [[package]]
+name = "shed"
+version = "0.3.5"
+description = "`shed` canonicalises Python code."
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+autoflake = ">=1.4"
+black = ">=21.5b0"
+com2ann = {version = ">=0.1.1", markers = "python_version >= \"3.8\""}
+isort = ">=5.7.0"
+libcst = ">=0.3.16"
+pybetter = ">=0.3.6.1"
+pyupgrade = ">=2.8.0"
+teyit = {version = ">=0.3.2", markers = "python_version >= \"3.9\""}
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1176,6 +1266,22 @@ description = "module for creating simple ASCII tables"
 category = "main"
 optional = true
 python-versions = "*"
+
+[[package]]
+name = "teyit"
+version = "0.3.2"
+description = "Unittest assertion formatter"
+category = "dev"
+optional = false
+python-versions = ">=3.9"
+
+[[package]]
+name = "tokenize-rt"
+version = "4.1.0"
+description = "A wrapper around the stdlib `tokenize` which roundtrips."
+category = "dev"
+optional = false
+python-versions = ">=3.6.1"
 
 [[package]]
 name = "toml"
@@ -1232,6 +1338,18 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "typing-inspect"
+version = "0.6.0"
+description = "Runtime inspection utilities for typing module."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+mypy-extensions = ">=0.3.0"
+typing-extensions = ">=3.7.4"
+
+[[package]]
 name = "urllib3"
 version = "1.26.4"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -1243,6 +1361,17 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 brotli = ["brotlipy (>=0.6.0)"]
+
+[[package]]
+name = "viztracer"
+version = "0.12.3"
+description = "A debugging and profiling tool that can trace and visualize python code execution"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+full = ["rich", "orjson"]
 
 [[package]]
 name = "wcwidth"
@@ -1314,7 +1443,7 @@ test = ["numpy", "pandas", "dask", "pytest", "pytest-docker-compose", "pytest-as
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "5ea7cb0a3b21dc8496ca4f93f5ffcf39af04a3722de64862bde85cfe314eb41a"
+content-hash = "c22344ad47cee25ec588d38e8bce72aafe6dc7a133c412270daa1cb680006382"
 
 [metadata.files]
 aiobotocore = [
@@ -1383,6 +1512,9 @@ attrs = [
     {file = "attrs-21.1.0-py2.py3-none-any.whl", hash = "sha256:8ee1e5f5a1afc5b19bdfae4fdf0c35ed324074bdce3500c939842c8f818645d9"},
     {file = "attrs-21.1.0.tar.gz", hash = "sha256:3901be1cb7c2a780f14668691474d9252c070a756be0a9ead98cfeabfa11aeb8"},
 ]
+autoflake = [
+    {file = "autoflake-1.4.tar.gz", hash = "sha256:61a353012cff6ab94ca062823d1fb2f692c4acda51c76ff83a8d77915fba51ea"},
+]
 backcall = [
     {file = "backcall-0.2.0-py2.py3-none-any.whl", hash = "sha256:fbbce6a29f263178a1f7915c1940bde0ec2b2a967566fe1c65c1dfb7422bd255"},
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
@@ -1397,7 +1529,8 @@ bcrypt = [
     {file = "bcrypt-3.2.0.tar.gz", hash = "sha256:5b93c1726e50a93a033c36e5ca7fdcd29a5c7395af50a6892f5d9e7c6cfbfb29"},
 ]
 black = [
-    {file = "black-20.8b1.tar.gz", hash = "sha256:1c02557aa099101b9d21496f8a914e9ed2222ef70336404eeeac8edba836fbea"},
+    {file = "black-21.5b1-py3-none-any.whl", hash = "sha256:8a60071a0043876a4ae96e6c69bd3a127dad2c1ca7c8083573eb82f92705d008"},
+    {file = "black-21.5b1.tar.gz", hash = "sha256:23695358dbcb3deafe7f0a3ad89feee5999a46be5fec21f4f1d108be0bcdb3b1"},
 ]
 bokeh = [
     {file = "bokeh-2.3.1.tar.gz", hash = "sha256:2f2fb8bab8ca8fa039f48b1f0bed56d3a847c75694ece1d206ffab645ff5beec"},
@@ -1476,6 +1609,10 @@ coiled = [
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
+]
+com2ann = [
+    {file = "com2ann-0.1.1-py3-none-any.whl", hash = "sha256:390f37cd5799fba1d4e4c0ed8dac8e6221f1bbce28bdac0c893e47e2de2d76ec"},
+    {file = "com2ann-0.1.1.tar.gz", hash = "sha256:91823f458860e0e1a22e917886fa74e8acfaa7653f7406a1a9c87e0252cd6a74"},
 ]
 commonmark = [
     {file = "commonmark-0.9.1-py2.py3-none-any.whl", hash = "sha256:da2f38c92590f83de410ba1a3cbceafbc74fee9def35f9251ba9a971d6d66fd9"},
@@ -1588,6 +1725,10 @@ jupyter-client = [
 jupyter-core = [
     {file = "jupyter_core-4.7.1-py3-none-any.whl", hash = "sha256:8c6c0cac5c1b563622ad49321d5ec47017bd18b94facb381c6973a0486395f8e"},
     {file = "jupyter_core-4.7.1.tar.gz", hash = "sha256:79025cb3225efcd36847d0840f3fc672c0abd7afd0de83ba8a1d3837619122b4"},
+]
+libcst = [
+    {file = "libcst-0.3.18-py3-none-any.whl", hash = "sha256:da89cc1a37702caa6fe7207b1257fad58f0d4643597279733106ca902b4fdbad"},
+    {file = "libcst-0.3.18.tar.gz", hash = "sha256:30154cd0aaede8f3adfc4bdead23fe022a57e88898b9993cc3fea3bfbaf780d2"},
 ]
 locket = [
     {file = "locket-0.2.1-py2.py3-none-any.whl", hash = "sha256:12b6ada59d1f50710bca9704dbadd3f447dbf8dac6664575c1281cadab8e6449"},
@@ -1893,6 +2034,10 @@ py-spy = [
     {file = "py_spy-0.3.6-py2.py3-none-manylinux2014_armv7l.whl", hash = "sha256:b569e7df537b05c88cc8c3161a99cf2d1af9a05fd283bc0a76a0c8b6b1d93f92"},
     {file = "py_spy-0.3.6-py2.py3-none-win_amd64.whl", hash = "sha256:cd20d46473ab1d5d4e2f9ecd1b0e765c916a052ff8674ec8da9f14784f441fb9"},
 ]
+pybetter = [
+    {file = "pybetter-0.3.6.1-py3-none-any.whl", hash = "sha256:92adcd2e7ee9e6757fc74c2182c7c9a8e2daa5a7ffb5061e70c39ad15e8e0c89"},
+    {file = "pybetter-0.3.6.1.tar.gz", hash = "sha256:29a52618c384a0e650d37e19cff0b0dbfb925af459be7eaa625d15e2f3e7e846"},
+]
 pycodestyle = [
     {file = "pycodestyle-2.7.0-py2.py3-none-any.whl", hash = "sha256:514f76d918fcc0b55c6680472f0a37970994e07bbb80725808c17089be302068"},
     {file = "pycodestyle-2.7.0.tar.gz", hash = "sha256:c389c1d06bf7904078ca03399a4816f974a1d590090fecea0c63ec26ebaf1cef"},
@@ -1900,6 +2045,10 @@ pycodestyle = [
 pycparser = [
     {file = "pycparser-2.20-py2.py3-none-any.whl", hash = "sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705"},
     {file = "pycparser-2.20.tar.gz", hash = "sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"},
+]
+pyemojify = [
+    {file = "pyemojify-0.2.0-py2.py3-none-any.whl", hash = "sha256:e70e4cfcfe0aed7b5bc64f39b023d5d62a5f5c0c31c1b7114cd43a059fb14a72"},
+    {file = "pyemojify-0.2.0.tar.gz", hash = "sha256:6bbc3c8d52e3df3e4039bc0cad3616d3eb579b4c6e15a11bd5e0ef0d579596a9"},
 ]
 pyflakes = [
     {file = "pyflakes-2.3.1-py2.py3-none-any.whl", hash = "sha256:7893783d01b8a89811dd72d7dfd4d84ff098e5eed95cfa8905b22bbffe52efc3"},
@@ -1959,6 +2108,10 @@ python-dotenv = [
 pytz = [
     {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},
     {file = "pytz-2021.1.tar.gz", hash = "sha256:83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da"},
+]
+pyupgrade = [
+    {file = "pyupgrade-2.15.0-py2.py3-none-any.whl", hash = "sha256:ad702e234082aace280164ff8f7fd151b042f66572b2d78730d60bd984a81fdc"},
+    {file = "pyupgrade-2.15.0.tar.gz", hash = "sha256:05579badd8d3cfbbc93fb60f910c9259961bf24a75f8689d399eaf46bedb7401"},
 ]
 pywin32 = [
     {file = "pywin32-227-cp27-cp27m-win32.whl", hash = "sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0"},
@@ -2098,6 +2251,10 @@ s3transfer = [
     {file = "s3transfer-0.3.7-py2.py3-none-any.whl", hash = "sha256:efa5bd92a897b6a8d5c1383828dca3d52d0790e0756d49740563a3fb6ed03246"},
     {file = "s3transfer-0.3.7.tar.gz", hash = "sha256:35627b86af8ff97e7ac27975fe0a98a312814b46c6333d8a6b889627bcd80994"},
 ]
+shed = [
+    {file = "shed-0.3.5-py3-none-any.whl", hash = "sha256:659cf498dc7a056340aaef9c7b283123e448528d28bae59004ce4ca10a319755"},
+    {file = "shed-0.3.5.tar.gz", hash = "sha256:061a929eead7d7e315a97c5b7c293792f8235fb3257a6e646511bd28af238178"},
+]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
@@ -2113,6 +2270,13 @@ tblib = [
 texttable = [
     {file = "texttable-1.6.3-py2.py3-none-any.whl", hash = "sha256:f802f2ef8459058736264210f716c757cbf85007a30886d8541aa8c3404f1dda"},
     {file = "texttable-1.6.3.tar.gz", hash = "sha256:ce0faf21aa77d806bbff22b107cc22cce68dc9438f97a2df32c93e9afa4ce436"},
+]
+teyit = [
+    {file = "teyit-0.3.2.tar.gz", hash = "sha256:c52680fdbf3772e73b47f53c1d6badbe2a8c150b063ba2e1ca0de55d98a75b39"},
+]
+tokenize-rt = [
+    {file = "tokenize_rt-4.1.0-py2.py3-none-any.whl", hash = "sha256:b37251fa28c21e8cce2e42f7769a35fba2dd2ecafb297208f9a9a8add3ca7793"},
+    {file = "tokenize_rt-4.1.0.tar.gz", hash = "sha256:ab339b5ff829eb5e198590477f9c03c84e762b3e455e74c018956e7e326cbc70"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
@@ -2206,9 +2370,37 @@ typing-extensions = [
     {file = "typing_extensions-3.10.0.0-py3-none-any.whl", hash = "sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84"},
     {file = "typing_extensions-3.10.0.0.tar.gz", hash = "sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342"},
 ]
+typing-inspect = [
+    {file = "typing_inspect-0.6.0-py2-none-any.whl", hash = "sha256:de08f50a22955ddec353876df7b2545994d6df08a2f45d54ac8c05e530372ca0"},
+    {file = "typing_inspect-0.6.0-py3-none-any.whl", hash = "sha256:3b98390df4d999a28cf5b35d8b333425af5da2ece8a4ea9e98f71e7591347b4f"},
+    {file = "typing_inspect-0.6.0.tar.gz", hash = "sha256:8f1b1dd25908dbfd81d3bebc218011531e7ab614ba6e5bf7826d887c834afab7"},
+]
 urllib3 = [
     {file = "urllib3-1.26.4-py2.py3-none-any.whl", hash = "sha256:2f4da4594db7e1e110a944bb1b551fdf4e6c136ad42e4234131391e21eb5b0df"},
     {file = "urllib3-1.26.4.tar.gz", hash = "sha256:e7b021f7241115872f92f43c6508082facffbd1c048e3c6e2bb9c2a157e28937"},
+]
+viztracer = [
+    {file = "viztracer-0.12.3-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:0b5199deb510135ebc39f6c177fd6baaa5419357184c8f4f4faf1050fe7ae34d"},
+    {file = "viztracer-0.12.3-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:791e5972cbe78462cc60ad39ed3455e18d117d1832ed5526fc224cf6cd1ccc7b"},
+    {file = "viztracer-0.12.3-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:60b4d1efc00d41fadfeb059449b37aebce9859a3a361055eefb6d276c7f98210"},
+    {file = "viztracer-0.12.3-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:ce1680c555fbcdb9127cb3b79a79a5c228cdb9b86bd3ae64e4bf4a3eed81a7b8"},
+    {file = "viztracer-0.12.3-cp36-cp36m-win_amd64.whl", hash = "sha256:037b5a3bed84331fc8a73470fdce5886f01ff16a0de80fb1c91c8dbc905f75aa"},
+    {file = "viztracer-0.12.3-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:e6112fb55841d3c113e68eed57d3b0fdd0c5c1320c18340c4f1d5d706b9f4314"},
+    {file = "viztracer-0.12.3-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:9edb45396628f558c188a335425046f332a7d675ea5cc4bf2977695cc42984b7"},
+    {file = "viztracer-0.12.3-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:38f050b20be193ec7962e035ac0edfb4c09fa7379aac099e24958f0adf81e575"},
+    {file = "viztracer-0.12.3-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:2db3a004287b8dc908a9d756d8500a0d35d8583b5c9b27e5e11e70cb66db689e"},
+    {file = "viztracer-0.12.3-cp37-cp37m-win_amd64.whl", hash = "sha256:c19e6f817ca91039db4d71759fdd2344bce537b76d328ab194e589eace7305fa"},
+    {file = "viztracer-0.12.3-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:a6d1f29719b2f1f7acd3302200078533c8a2b7ab622e22a161f3b168832d6a6c"},
+    {file = "viztracer-0.12.3-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ed3da43c51aee0cfc4fef0be930055a55cfdc945369a46c5701308f3dd554d08"},
+    {file = "viztracer-0.12.3-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:e1abd3c5d45d33e5646e38ae8bc3e7c8328f46fd61e2fefae30dc1629d3f7646"},
+    {file = "viztracer-0.12.3-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:ca2678e2532670cb63830bb7028138c869aa4e660761be29288da0bc1e36bbd6"},
+    {file = "viztracer-0.12.3-cp38-cp38-win_amd64.whl", hash = "sha256:f13be5d4f8b882dc36d5d19e08ce4d5f240b6bb8699bfe67dfeaac25d3ab6dc8"},
+    {file = "viztracer-0.12.3-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:4553a91c50b35fa4c1b384409ac48e66f0b7d601298bc89fa91b79dbe57f1f20"},
+    {file = "viztracer-0.12.3-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:67bd0b662d4daae938e73aab51bd85828bb136804fedc8cb790fa027cc706b90"},
+    {file = "viztracer-0.12.3-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:f4ae5939da81c5dea8c7f604d836c03d1463f6c3e40ceb7f2afeca830c448d85"},
+    {file = "viztracer-0.12.3-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:3abfc20898607a390c24f91ba735460044a56dddee8546653238fe469a25ba61"},
+    {file = "viztracer-0.12.3-cp39-cp39-win_amd64.whl", hash = "sha256:102b72b4159f6825099dc47ce903ddd93cc5bbc29be27bd9f8c5c8951f9e7b9f"},
+    {file = "viztracer-0.12.3.tar.gz", hash = "sha256:64488c3b6a15121fe5b109dd7a5b20bed9e87a7cc41a911c48c453eaf8a59d96"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
