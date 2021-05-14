@@ -461,7 +461,7 @@ pyflakes = ">=2.3.0,<2.4.0"
 
 [[package]]
 name = "fsspec"
-version = "2021.4.0"
+version = "2021.5.0"
 description = "File-system specification"
 category = "main"
 optional = false
@@ -1192,7 +1192,7 @@ jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
 
 [[package]]
 name = "s3fs"
-version = "2021.4.0"
+version = "2021.5.0"
 description = "Convenient Filesystem interface over S3"
 category = "dev"
 optional = false
@@ -1200,7 +1200,7 @@ python-versions = ">= 3.6"
 
 [package.dependencies]
 aiobotocore = ">=1.0.1"
-fsspec = "2021.04.0"
+fsspec = "2021.05.0"
 
 [package.extras]
 awscli = ["aiobotocore"]
@@ -1667,8 +1667,8 @@ flake8 = [
     {file = "flake8-3.9.2.tar.gz", hash = "sha256:07528381786f2a6237b061f6e96610a4167b226cb926e2aa2b6b1d78057c576b"},
 ]
 fsspec = [
-    {file = "fsspec-2021.4.0-py3-none-any.whl", hash = "sha256:70dae1d8d51072c4a1196acb9ba1bf8f5b9cdd83c4bb67e8a31dac604a49594b"},
-    {file = "fsspec-2021.4.0.tar.gz", hash = "sha256:8b1a69884855d1a8c038574292e8b861894c3373282d9a469697a2b41d5289a6"},
+    {file = "fsspec-2021.5.0-py3-none-any.whl", hash = "sha256:a08daa28ecb98544350d62f8307a7678e410c4b5245e04d14fcf4a3f13e959a7"},
+    {file = "fsspec-2021.5.0.tar.gz", hash = "sha256:30064d89b00c6acfe5d8e027b6c0ef3df25ca17fd1d5cad2e8208c9aa5300f8d"},
 ]
 heapdict = [
     {file = "HeapDict-1.0.1-py3-none-any.whl", hash = "sha256:6065f90933ab1bb7e50db403b90cab653c853690c5992e69294c2de2b253fc92"},
@@ -2226,8 +2226,8 @@ rich = [
     {file = "rich-10.2.0.tar.gz", hash = "sha256:a30429d82363d42e7c64e324c2c8735c045f190cba609feee91a7b9f563a64b5"},
 ]
 s3fs = [
-    {file = "s3fs-2021.4.0-py3-none-any.whl", hash = "sha256:2dea6829d4169fa6bd3640f0966a022bafba50da195872e68c52ec41007136ee"},
-    {file = "s3fs-2021.4.0.tar.gz", hash = "sha256:bd2c610a8419f3137bae18c138fc22281c2a3796812f854334974903f35962c5"},
+    {file = "s3fs-2021.5.0-py3-none-any.whl", hash = "sha256:ef7b91c47481be32279eb73e37ce9ab1b02b9e139b5446c53360c9de6d9c6bed"},
+    {file = "s3fs-2021.5.0.tar.gz", hash = "sha256:70425530814c682dc4f7cdbda1f2930ad832dbf1bee341b5c90511c54cc12690"},
 ]
 s3transfer = [
     {file = "s3transfer-0.3.7-py2.py3-none-any.whl", hash = "sha256:efa5bd92a897b6a8d5c1383828dca3d52d0790e0756d49740563a3fb6ed03246"},

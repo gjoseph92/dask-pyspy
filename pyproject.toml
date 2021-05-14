@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "scheduler-profiling"
+name = "scheduler-profilers"
 version = "0.3.0"
 description = "Profile the dask distributed scheduler with py-spy or viztracer"
 authors = ["Gabe Joseph <gjoseph92@gmail.com>"]

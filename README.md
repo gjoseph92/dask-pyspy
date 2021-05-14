@@ -1,4 +1,4 @@
-# scheduler-profiling
+# scheduler-profilers
 
 Profile the dask [distributed](https://github.com/dask/distributed) scheduler with [py-spy](https://github.com/benfred/py-spy) or [viztracer](https://github.com/gaogaotiantian/viztracer).
 
@@ -6,7 +6,7 @@ Profile the dask [distributed](https://github.com/dask/distributed) scheduler wi
 import dask
 import distributed
 
-from scheduler_profiling import pyspy_on_scheduler, viztrace_scheduler
+from scheduler_profilers import pyspy_on_scheduler, viztrace_scheduler
 
 client = distributed.Client()
 
