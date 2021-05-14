@@ -4,7 +4,7 @@ import os
 import signal
 import tempfile
 from contextlib import contextmanager
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Union, cast
 
 import distributed
 from distributed.diagnostics import SchedulerPlugin
@@ -232,6 +232,7 @@ def get_profile_from_scheduler(
         return await getattr(client.scheduler, PySpyScheduler._HANDLER_NAME)()
 
     data = client.sync(_get_profile)
+    data = cast(bytes, data)
     with open(path, "wb") as f:
         f.write(data)
 

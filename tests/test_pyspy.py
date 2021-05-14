@@ -6,7 +6,7 @@ import dask
 import distributed
 import pytest
 
-import distributed_pyspy
+import scheduler_profiling
 
 pytest_plugins = ["docker_compose"]
 
@@ -16,7 +16,7 @@ def core_test(client: distributed.Client, tmp_path: pathlib.Path) -> None:
     distributed.wait(df)
 
     prof_path = tmp_path / "profile.json"
-    with distributed_pyspy.pyspy_on_scheduler(prof_path, client=client):
+    with scheduler_profiling.pyspy_on_scheduler(prof_path, client=client):
         distributed.wait(df.set_index("id").persist())
 
     with open(prof_path) as f:
