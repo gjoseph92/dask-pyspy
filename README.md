@@ -47,7 +47,7 @@ You may need to run the scheduler process as root for py-spy to be able to profi
 In a Docker container, `scheduler-profilers` will "just work" for Docker/moby versions >= 21.xx. As of right now (May 2021), Docker 21.xx doesn't exist yet, so read on.
 
 [moby/moby#42083](https://github.com/moby/moby/pull/42083/files) recently allowlisted the `process_vm_readv` system call that py-spy uses, which used to be blocked unless you set `--cap-add SYS_PTRACE`. This has been reasonable/safe to do for a while, but just wasn't enabled. So your options right now are:
-* (low/no security impact) Download the newer [`seccomp.json`](https://github.com/clubby789/moby/blob/d39b075302c27f77b2de413697a5aacb034d8286/profiles/seccomp/default.json) file from moby/master and pass it to Docker via `--seccomp=default.json`.
+* (low/no security impact) Download the newer [`seccomp.json`](https://github.com/moby/moby/blob/d39b075302c27f77b2de413697a5aacb034d8286/profiles/seccomp/default.json) file from moby/master and pass it to Docker via `--seccomp=default.json`.
 * (more convenient) Pass `--cap-add SYS_PTRACE` to Docker. This enables more than you need, but it's one less step.
 
 On Ubuntu-based containers, ptrace system calls are [further blocked](https://www.kernel.org/doc/Documentation/admin-guide/LSM/Yama.rst): processes are prohibited from ptracing each other even within the same UID. To work around this, `scheduler-profilers` automatically uses [`prctl(2)`](https://man7.org/linux/man-pages/man2/prctl.2.html) to mark the scheduler process as ptrace-able by itself and any child processes, then launches py-spy as a child process.
