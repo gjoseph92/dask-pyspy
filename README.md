@@ -63,7 +63,7 @@ Examples:
 * `trace_sparse="distributed.Scheduler.handle_task_finished"` - Trace only the `handle_task_finished` function, and everything it calls while running
 * `trace_sparse=["dask.highlevelgraph.HighLevelGraph.__dask_distributed_unpack__", "distributed.Scheduler.handle_task_finished"]` - Trace both high-level-graph unpacking and `handle_task_finished`
 
-In principle, this should work on anything... in practice, sometimes it doesn't. `distributed.comm.tcp.TCP.read` doesn't seem to work, for example.
+Note that this doesn't work very well on async functions. `distributed.comm.tcp.TCP.read` doesn't work that well, for example.
 
 ## Development
 

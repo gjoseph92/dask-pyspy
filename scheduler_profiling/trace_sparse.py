@@ -1,4 +1,5 @@
 import functools
+import inspect
 from typing import Callable, TypeVar
 
 import distributed
@@ -11,17 +12,35 @@ def trace_sparse(func):
     if not tracer or not tracer.log_sparse:
         return func
 
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        tracer = viztracer.get_tracer()
-        if tracer and tracer.log_sparse:
-            tracer.resume()
-            try:
-                return func(*args, **kwargs)
-            finally:
-                tracer.pause()
+    if inspect.iscoroutinefunction(func):
+        # TODO this async mode doesn't work that well, since it also profiles whatever other
+        # coroutines get context-switched in while awaiting this one.
+        @functools.wraps(func)
+        # Function declaration "wrapper" is obscured by a declaration of the same name
+        async def wrapper(*args, **kwargs):  # type: ignore
+            tracer = viztracer.get_tracer()
+            if tracer and tracer.log_sparse:
+                tracer.resume()
+                try:
+                    return await func(*args, **kwargs)
+                finally:
+                    tracer.pause()
 
-        return func(*args, **kwargs)
+            return func(*args, **kwargs)
+
+    else:
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            tracer = viztracer.get_tracer()
+            if tracer and tracer.log_sparse:
+                tracer.resume()
+                try:
+                    return func(*args, **kwargs)
+                finally:
+                    tracer.pause()
+
+            return func(*args, **kwargs)
 
     return wrapper
 
