@@ -4,7 +4,7 @@ import os
 import signal
 import tempfile
 from contextlib import contextmanager
-from typing import Iterable, List, Optional, Union, TypeVar
+from typing import Iterable, List, Optional, Union
 
 import distributed
 from distributed.diagnostics import SchedulerPlugin
@@ -67,7 +67,7 @@ class PySpyScheduler(SchedulerPlugin):
         self.scheduler = scheduler
         if self._HANDLER_NAME in scheduler.handlers:
             raise RuntimeError(
-                f"A py-spy plugin is already registered: "
+                "A py-spy plugin is already registered: "
                 f"{scheduler.handlers[self._HANDLER_NAME]} vs {self._get_py_spy_profile}!"
             )
         else:
@@ -156,12 +156,13 @@ class PySpyScheduler(SchedulerPlugin):
         self._tempfile = None
 
     # This handler gets injected into the scheduler
-    async def _get_py_spy_profile(self, comm=None) -> Union[bytes, RuntimeError]:
+    async def _get_py_spy_profile(self, comm=None) -> bytes:
         try:
             await self._stop()
         except RuntimeError:
             raise
         else:
+            assert self.output is not None
             with open(self.output, "rb") as f:
                 return f.read()  # TODO streaming!
         finally:
@@ -174,9 +175,6 @@ class PySpyScheduler(SchedulerPlugin):
             pass
         finally:
             self._maybe_close_tempfile()
-
-
-T = TypeVar("T")
 
 
 def start_pyspy_on_scheduler(
@@ -201,7 +199,7 @@ def start_pyspy_on_scheduler(
 
     async def _inject_pyspy(
         dask_scheduler: distributed.Scheduler,
-    ) -> Optional[RuntimeError]:
+    ) -> None:
         plugin = PySpyScheduler(
             output=output,
             format=format,
