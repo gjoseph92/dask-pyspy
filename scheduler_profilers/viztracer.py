@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import tempfile
 from contextlib import contextmanager
 from typing import Callable, Literal, Optional, Sequence, Union, cast
@@ -168,6 +169,8 @@ def get_profile_from_scheduler(
     data = cast(bytes, data)
     if not data:
         raise RuntimeError("Trace data was empty!")
+    # make the directory if necessary
+    Path(path).resolve(strict=False).parent.mkdir(parents=True, exist_ok=True)
     with open(path, "wb") as f:
         f.write(data)
 

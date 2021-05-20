@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from pathlib import Path
 import signal
 import tempfile
 from contextlib import contextmanager
@@ -233,6 +234,8 @@ def get_profile_from_scheduler(
 
     data = client.sync(_get_profile)
     data = cast(bytes, data)
+    # make the directory if necessary
+    Path(path).resolve(strict=False).parent.mkdir(parents=True, exist_ok=True)
     with open(path, "wb") as f:
         f.write(data)
 
