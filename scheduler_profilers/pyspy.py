@@ -1,23 +1,21 @@
 import asyncio
 import logging
 import os
-from pathlib import Path
+import random
 import signal
 import tempfile
 from contextlib import contextmanager
-from typing import Iterable, List, Optional, Union, cast
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Sequence, Union, cast
 
 import distributed
-from distributed.diagnostics import SchedulerPlugin
 
 from .prctl import allow_ptrace
 
 logger = logging.getLogger(__name__)
 
 
-class PySpyScheduler(SchedulerPlugin):
-    _HANDLER_NAME = "get_py_spy_profile"
-
+class PySpyer:
     def __init__(
         self,
         output: Optional[str] = None,
@@ -56,26 +54,12 @@ class PySpyScheduler(SchedulerPlugin):
     def __repr__(self) -> str:
         return f"<{type(self).__name__} {self.pyspy_args}>"
 
-    async def start(self, scheduler) -> None:
+    async def start(self) -> None:
         if self.output is None:
             self._tempfile = tempfile.NamedTemporaryFile(suffix="pyspy.json")
             self.output = self._tempfile.name
 
-        # HACK: inject a `get_py_spy_profile` handler into the scheduler,
-        # so we can retrieve the data more easily. Until we can stream back files,
-        # there's probably not any advantage to this over an async
-        # `run_on_scheduler` to retrieve the data.
-        self.scheduler = scheduler
-        if self._HANDLER_NAME in scheduler.handlers:
-            raise RuntimeError(
-                "A py-spy plugin is already registered: "
-                f"{scheduler.handlers[self._HANDLER_NAME]} vs {self._get_py_spy_profile}!"
-            )
-        else:
-            scheduler.handlers[self._HANDLER_NAME] = self._get_py_spy_profile
-
         pid = os.getpid()
-
         try:
             # Allow subprocesses of this process to ptrace it.
             # Since we'll start py-spy as a subprocess, it will be below the current PID
@@ -110,7 +94,7 @@ class PySpyScheduler(SchedulerPlugin):
     async def _stop(self) -> None:
         if self.proc is None:
             raise RuntimeError(
-                "No py-spy subprocess found. Either `get_profile_from_scheduler()` was "
+                "No py-spy subprocess found. Either `get_profile()` was "
                 "already called, or the process never started successfully."
             )
 
@@ -144,10 +128,6 @@ class PySpyScheduler(SchedulerPlugin):
             error = RuntimeError("\n".join(msgs))
 
         self.proc = None
-        # Remove our injected handler
-        del self.scheduler.handlers[self._HANDLER_NAME]
-        # TODO should we remove the plugin as well?
-        # At this point, there's not much reason to be using a plugin...
         if error:
             raise error
 
@@ -156,8 +136,7 @@ class PySpyScheduler(SchedulerPlugin):
             self._tempfile.close()
         self._tempfile = None
 
-    # This handler gets injected into the scheduler
-    async def _get_py_spy_profile(self, comm=None) -> bytes:
+    async def get_profile(self) -> bytes:
         try:
             await self._stop()
         except RuntimeError:
@@ -169,75 +148,13 @@ class PySpyScheduler(SchedulerPlugin):
         finally:
             self._maybe_close_tempfile()
 
-    async def close(self):
-        try:
-            await self._stop()
-        except RuntimeError:
-            pass
-        finally:
-            self._maybe_close_tempfile()
-
-
-def start_pyspy_on_scheduler(
-    output: Optional[str] = None,
-    format: str = "speedscope",
-    rate: int = 100,
-    subprocesses: bool = True,
-    function: bool = False,
-    gil: bool = False,
-    threads: bool = False,
-    idle: bool = True,
-    nonblocking: bool = False,
-    native: bool = False,
-    extra_pyspy_args: Iterable[str] = (),
-    log_level: Optional[str] = None,
-    client: Optional[distributed.Client] = None,
-) -> None:
-    """
-    Add a `PySpyScheduler` plugin to the Scheduler, and start it.
-    """
-    client = client or distributed.worker.get_client()
-
-    async def _inject_pyspy(
-        dask_scheduler: distributed.Scheduler,
-    ) -> None:
-        plugin = PySpyScheduler(
-            output=output,
-            format=format,
-            rate=rate,
-            subprocesses=subprocesses,
-            function=function,
-            gil=gil,
-            threads=threads,
-            idle=idle,
-            nonblocking=nonblocking,
-            native=native,
-            extra_pyspy_args=extra_pyspy_args,
-            log_level=log_level,
-        )
-        dask_scheduler.add_plugin(plugin)
-        return await plugin.start(dask_scheduler)
-
-    client.run_on_scheduler(_inject_pyspy)
-
-
-def get_profile_from_scheduler(
-    path: Union[str, os.PathLike], client: Optional[distributed.Client] = None
-) -> None:
-    """
-    Stop the current `PySpyScheduler` plugin, send back its profile data, and write it to ``path``.
-    """
-    client = client or distributed.worker.get_client()
-
-    async def _get_profile():
-        return await getattr(client.scheduler, PySpyScheduler._HANDLER_NAME)()
-
-    data = client.sync(_get_profile)
-    data = cast(bytes, data)
-    # make the directory if necessary
-    Path(path).resolve(strict=False).parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "wb") as f:
-        f.write(data)
+    # async def close(self):
+    #     try:
+    #         await self._stop()
+    #     except RuntimeError:
+    #         pass
+    #     finally:
+    #         self._maybe_close_tempfile()
 
 
 @contextmanager
@@ -300,23 +217,170 @@ def pyspy_on_scheduler(
         The distributed Client to use. If None (default), the default client is used.
     """
     client = client or distributed.worker.get_client()
+    assert client
 
-    start_pyspy_on_scheduler(
-        output=None,
-        format=format,
-        rate=rate,
-        subprocesses=subprocesses,
-        function=function,
-        gil=gil,
-        threads=threads,
-        idle=idle,
-        nonblocking=nonblocking,
-        native=native,
-        extra_pyspy_args=extra_pyspy_args,
-        log_level=log_level,
-        client=client,
-    )
+    # make the directory if necessary
+    path = Path(output).resolve(strict=False)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    async def _inject_pyspy(
+        dask_scheduler: distributed.Scheduler,
+    ) -> None:
+        if hasattr(dask_scheduler, "_pyspy"):
+            raise RuntimeError("py-spy is already running on this worker!")
+        plugin = PySpyer(
+            output=None,
+            format=format,
+            rate=rate,
+            subprocesses=subprocesses,
+            function=function,
+            gil=gil,
+            threads=threads,
+            idle=idle,
+            nonblocking=nonblocking,
+            native=native,
+            extra_pyspy_args=extra_pyspy_args,
+            log_level=log_level,
+        )
+        await plugin.start()
+        dask_scheduler._pyspy = plugin
+
+    client.run_on_scheduler(_inject_pyspy)
     try:
         yield
     finally:
-        get_profile_from_scheduler(output, client=client)
+
+        async def _get_profile(dask_scheduler: distributed.Scheduler):
+            try:
+                return await dask_scheduler._pyspy.get_profile()
+            finally:
+                del dask_scheduler._pyspy
+
+        data = client.run_on_scheduler(_get_profile)
+        data = cast(bytes, data)
+        with open(path, "wb") as f:
+            f.write(data)
+
+
+@contextmanager
+def pyspy(
+    output: Union[str, os.PathLike],
+    workers: Optional[Union[int, Sequence[str]]] = None,
+    format: str = "speedscope",
+    rate: int = 100,
+    subprocesses: bool = True,
+    function: bool = False,
+    gil: bool = False,
+    threads: bool = False,
+    idle: bool = True,
+    nonblocking: bool = False,
+    native: bool = False,
+    extra_pyspy_args: Iterable[str] = (),
+    log_level: Optional[str] = None,
+    client: Optional[distributed.Client] = None,
+):
+    """
+    Spy on dask workers with py-spy.
+
+    Use as a context manager (similar to `distributed.performance_report`) to record a py-spy
+    profile on each worker.
+
+    When the context manager exits, the profiles are sent back to the client and saved to
+    the ``output`` directory.
+
+    Parameters
+    ----------
+    output:
+        *Local* directory to save the profiles to, once they're sent back from the scheduler.
+        A separate file will be created for each worker, named for that worker's address.
+    workers:
+        Workers to profile. If None (default), py-spy runs on all workers. Pass an int to randomly
+        select that many workers, or a sequence of worker addresses (strings) to run on specific workers.
+    format:
+        Output file format [default: flamegraph]  [possible values: flamegraph, raw, speedscope]
+    rate:
+        The number of samples to collect per second [default: 100]
+    subprocesses:
+        Profile subprocesses of the original process
+    function:
+        Aggregate samples by function name instead of by line number
+    gil:
+        Only include traces that are holding on to the GIL
+    threads:
+        Show thread ids in the output
+    idle:
+        Include stack traces for idle threads
+    nonblocking:
+        Don't pause the python process when collecting samples. Setting this option
+        will reduce the perfomance impact of sampling, but may lead to inaccurate results
+    native:
+        Collect stack traces from native extensions written in Cython, C or C++
+    extra_pyspy_args:
+        Iterable of any extra arguments to pass to ``py-spy``.
+    log_level:
+        The log level for ``py-spy`` (useful for debugging py-spy issues).
+        If None (default), the defaults are unchanged (only error-level logs).
+        Typically a string like ``"warn"``, ``"info"``, etc, which is set as the ``RUST_LOG``
+        environment variable. See documentation of the ``env_logger`` crate for details:
+        https://docs.rs/env_logger/0.8.3/env_logger/#enabling-logging.
+    client:
+        The distributed Client to use. If None (default), the default client is used.
+    """
+    client = client or distributed.worker.get_client()
+    assert client
+
+    if isinstance(workers, int):
+        workers = random.sample(client.scheduler_info()["workers"], workers)
+
+    # make the directory if necessary
+    path = Path(output).resolve(strict=False)
+    path.mkdir(parents=True, exist_ok=True)
+    if not path.is_dir():
+        raise ValueError(f"{path} is not a directory")
+
+    async def _inject_pyspy(
+        dask_worker: distributed.Worker,
+    ) -> None:
+        if hasattr(dask_worker, "_pyspy"):
+            raise RuntimeError("py-spy is already running on this worker!")
+        plugin = PySpyer(
+            output=None,
+            format=format,
+            rate=rate,
+            subprocesses=subprocesses,
+            function=function,
+            gil=gil,
+            threads=threads,
+            idle=idle,
+            nonblocking=nonblocking,
+            native=native,
+            extra_pyspy_args=extra_pyspy_args,
+            log_level=log_level,
+        )
+        await plugin.start()
+        dask_worker._pyspy = plugin
+
+    client.run(_inject_pyspy, workers=workers)
+    try:
+        yield
+    finally:
+
+        async def _get_profile(dask_worker: distributed.Worker):
+            try:
+                return await dask_worker._pyspy.get_profile()
+            finally:
+                del dask_worker._pyspy
+
+        results = client.run(_get_profile, workers=workers)
+        results = cast(Dict[str, bytes], results)
+        for addr, data in results.items():
+            base = addr.replace("://", "-").replace(".", "_").replace(":", "-")
+            ext = (
+                "json"
+                if format == "speedscope"
+                else "svg"
+                if format == "flamegraph"
+                else "pyspy"
+            )
+            with open(path / f"{base}.{ext}", "wb") as f:
+                f.write(data)

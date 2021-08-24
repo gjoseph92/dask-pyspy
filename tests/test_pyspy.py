@@ -13,17 +13,28 @@ pytest_plugins = ["docker_compose"]
 
 def core_test(client: distributed.Client, tmp_path: pathlib.Path) -> None:
     df = dask.datasets.timeseries().persist()
-    distributed.wait(df)
 
-    prof_path = tmp_path / "profile.json"
-    with scheduler_profilers.pyspy_on_scheduler(prof_path, client=client):
-        distributed.wait(df.set_index("id").persist())
+    scheduler_prof_path = tmp_path / "profile.json"
+    worker_prof_dir = tmp_path / "workers"
+    with scheduler_profilers.pyspy_on_scheduler(
+        scheduler_prof_path, client=client
+    ), scheduler_profilers.pyspy(worker_prof_dir, client=client):
+        df.set_index("id").size.compute(client=client)
 
-    with open(prof_path) as f:
+    with open(scheduler_prof_path) as f:
         # Check the file is valid JSON
         profile = json.load(f)
+        assert profile
 
-    assert profile
+    assert worker_prof_dir.exists()
+    assert len(list(worker_prof_dir.glob("*.json"))) == len(
+        client.scheduler_info()["workers"]
+    )
+    for p in worker_prof_dir.glob("*.json"):
+        with open(p) as f:
+            # Check the file is valid JSON
+            profile = json.load(f)
+            assert profile
 
 
 @pytest.mark.skipif(
