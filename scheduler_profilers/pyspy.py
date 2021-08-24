@@ -330,7 +330,7 @@ def pyspy(
     assert client
 
     if isinstance(workers, int):
-        workers = random.sample(client.scheduler_info()["workers"], workers)
+        workers = random.sample(list(client.scheduler_info()["workers"]), workers)
 
     # make the directory if necessary
     path = Path(output).resolve(strict=False)
