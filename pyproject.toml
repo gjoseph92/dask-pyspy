@@ -8,7 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.7.1"
 distributed = ">=2.30.0"
-py-spy = "^0.3.4"
+py-spy = "^0.3.9"
 numpy = {version = "^1.20.2", optional = true}
 pandas = {version = "^1.2.4", optional = true}
 pytest = {version = "^6.2.3", optional = true}
