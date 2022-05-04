@@ -37,7 +37,7 @@ By default, py-spy profiles are recorded in [speedscope](https://www.speedscope.
 ## Installation
 
 ```
-python -m pip install git+https://github.com/gjoseph92/scheduler-profilers.git
+python -m pip install git+https://github.com/gjoseph92/scheduler-profilers.git@main
 ```
 
 ## Privileges for py-spy
