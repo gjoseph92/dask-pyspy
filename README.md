@@ -21,13 +21,13 @@ with pyspy("worker-profiles"):
     df.set_index("id").mean().compute()
 ```
 
-Using `pyspy` or `pyspy_on_scheduler` attaches a profiler to the Python process, records a profile, and sends the file back to the client.
+Using `pyspy` or `pyspy_on_scheduler` attaches a profiler to the Python process, records a profile, and sends the file(s) back to the client.
 
 By default, py-spy profiles are recorded in [speedscope](https://www.speedscope.app/) format.
 
 `dask-profiling` (and, transitively, `py-spy`) must be installed in the environment where the scheduler is running.
 
-`dask-profiling` tries hard to work out-of-the-box, but if your cluster is running inside Docker, or on macOS, you'l need to configure things so it's allowed to run. See the [privileges for py-spy](#privileges-for-py-spy) section.
+`dask-profiling` tries hard to work out-of-the-box, but if your cluster is running inside Docker, or on macOS, you'll need to configure things so it's allowed to run. See the [privileges for py-spy](#privileges-for-py-spy) section.
 
 ## Installation
 
