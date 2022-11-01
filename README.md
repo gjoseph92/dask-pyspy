@@ -32,8 +32,10 @@ By default, py-spy profiles are recorded in [speedscope](https://www.speedscope.
 ## Installation
 
 ```
-python -m pip install git+https://github.com/gjoseph92/dask-pyspy.git@main
+python -m pip install dask-pyspy
 ```
+
+Make sure this package is also installed in the software environment of your cluster!
 
 ## Usage
 
