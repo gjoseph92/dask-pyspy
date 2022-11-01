@@ -202,7 +202,7 @@ def pyspy_on_scheduler(
         Include stack traces for idle threads
     nonblocking:
         Don't pause the python process when collecting samples. Setting this option
-        will reduce the perfomance impact of sampling, but may lead to inaccurate results
+        will reduce the performance impact of sampling, but may lead to inaccurate results
     native:
         Collect stack traces from native extensions written in Cython, C or C++
     extra_pyspy_args:
@@ -212,7 +212,7 @@ def pyspy_on_scheduler(
         If None (default), the defaults are unchanged (only error-level logs).
         Typically a string like ``"warn"``, ``"info"``, etc, which is set as the ``RUST_LOG``
         environment variable. See documentation of the ``env_logger`` crate for details:
-        https://docs.rs/env_logger/0.8.3/env_logger/#enabling-logging.
+        https://docs.rs/env_logger/latest/env_logger/index.html#enabling-logging.
     client:
         The distributed Client to use. If None (default), the default client is used.
     """
@@ -312,7 +312,7 @@ def pyspy(
         Include stack traces for idle threads
     nonblocking:
         Don't pause the python process when collecting samples. Setting this option
-        will reduce the perfomance impact of sampling, but may lead to inaccurate results
+        will reduce the performance impact of sampling, but may lead to inaccurate results
     native:
         Collect stack traces from native extensions written in Cython, C or C++
     extra_pyspy_args:
