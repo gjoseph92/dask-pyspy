@@ -1,4 +1,4 @@
-# dask-profiling
+# dask-pyspy
 
 Profile dask [distributed](https://github.com/dask/distributed) clusters with [py-spy](https://github.com/benfred/py-spy).
 
@@ -6,7 +6,7 @@ Profile dask [distributed](https://github.com/dask/distributed) clusters with [p
 import dask
 import distributed
 
-from dask_profiling import pyspy
+from dask_pyspy import pyspy
 
 client = distributed.Client()
 
@@ -25,14 +25,14 @@ Using `pyspy` or `pyspy_on_scheduler` attaches a profiler to the Python process,
 
 By default, py-spy profiles are recorded in [speedscope](https://www.speedscope.app/) format.
 
-`dask-profiling` (and, transitively, `py-spy`) must be installed in the environment where the scheduler is running.
+`dask-pyspy` (and, transitively, `py-spy`) must be installed in the environment where the scheduler is running.
 
-`dask-profiling` tries hard to work out-of-the-box, but if your cluster is running inside Docker, or on macOS, you'll need to configure things so it's allowed to run. See the [privileges for py-spy](#privileges-for-py-spy) section.
+`dask-pyspy` tries hard to work out-of-the-box, but if your cluster is running inside Docker, or on macOS, you'll need to configure things so it's allowed to run. See the [privileges for py-spy](#privileges-for-py-spy) section.
 
 ## Installation
 
 ```
-python -m pip install git+https://github.com/gjoseph92/dask-profiling.git@main
+python -m pip install git+https://github.com/gjoseph92/dask-pyspy.git@main
 ```
 
 ## Usage
@@ -40,8 +40,6 @@ python -m pip install git+https://github.com/gjoseph92/dask-profiling.git@main
 The `pyspy` and `pyspy_on_scheduler` functions are context managers. Entering them starts py-spy on the workers / scheduler. Exiting them stops py-spy, sends the profile data back to the client, and writes it to disk.
 
 ```python
-client = distributed.Client()
-
 with pyspy_on_scheduler("scheduler-profile.json"):
     # Profile the scheduler.
     # Writes to the `scheduler-profile.json` file locally.
@@ -127,13 +125,13 @@ del persisted
 
 You may need to run the dask process as root for py-spy to be able to profile it (especially on macOS). See https://github.com/benfred/py-spy#when-do-you-need-to-run-as-sudo.
 
-In a Docker container, `dask-profiling` will "just work" for Docker/moby versions >= 21.xx. As of right now (Nov 2022), Docker 21.xx doesn't exist yet, so read on.
+In a Docker container, `dask-pyspy` will "just work" for Docker/moby versions >= 21.xx. As of right now (Nov 2022), Docker 21.xx doesn't exist yet, so read on.
 
 [moby/moby#42083](https://github.com/moby/moby/pull/42083/files) allowlisted by default the `process_vm_readv` system call that py-spy uses, which used to be blocked unless you set `--cap-add SYS_PTRACE`. Allowing this specific system call in unprivileged containers has been safe to do for a while (since linux kernel versions > 4.8), but just wasn't enabled in Docker. So your options right now are:
 * (low/no security impact) Download the newer [`seccomp.json`](https://github.com/moby/moby/blob/d39b075302c27f77b2de413697a5aacb034d8286/profiles/seccomp/default.json) file from moby/master and pass it to Docker via `--seccomp=default.json`.
 * (more convenient) Pass `--cap-add SYS_PTRACE` to Docker. This enables more than you need, but it's one less step.
 
-On Ubuntu-based containers, ptrace system calls are [further blocked](https://www.kernel.org/doc/Documentation/admin-guide/LSM/Yama.rst): processes are prohibited from ptracing each other even within the same UID. To work around this, `dask-profiling` automatically uses [`prctl(2)`](https://man7.org/linux/man-pages/man2/prctl.2.html) to mark the scheduler process as ptrace-able by itself and any child processes, then launches py-spy as a child process.
+On Ubuntu-based containers, ptrace system calls are [further blocked](https://www.kernel.org/doc/Documentation/admin-guide/LSM/Yama.rst): processes are prohibited from ptracing each other even within the same UID. To work around this, `dask-pyspy` automatically uses [`prctl(2)`](https://man7.org/linux/man-pages/man2/prctl.2.html) to mark the scheduler process as ptrace-able by itself and any child processes, then launches py-spy as a child process.
 
 ## Caveats
 

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dask-profiling"
+name = "dask-pyspy"
 version = "0.3.0"
 description = "Profile dask distributed clusters with py-spy"
 authors = ["Gabe Joseph <gjoseph92@gmail.com>"]

@@ -7,7 +7,7 @@ import dask
 import distributed
 import pytest
 
-import dask_profiling
+import dask_pyspy
 
 pytest_plugins = ["docker_compose"]
 
@@ -17,9 +17,9 @@ def core_test(client: distributed.Client, tmp_path: pathlib.Path) -> None:
 
     scheduler_prof_path = tmp_path / "profile.json"
     worker_prof_dir = tmp_path / "workers"
-    with dask_profiling.pyspy_on_scheduler(
+    with dask_pyspy.pyspy_on_scheduler(
         scheduler_prof_path, client=client
-    ), dask_profiling.pyspy(worker_prof_dir, client=client):
+    ), dask_pyspy.pyspy(worker_prof_dir, client=client):
         df.set_index("id").size.compute(client=client)
 
     with open(scheduler_prof_path) as f:
