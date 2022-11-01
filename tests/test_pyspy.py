@@ -1,12 +1,13 @@
 import json
 import pathlib
 import platform
+import time
 
 import dask
 import distributed
 import pytest
 
-import scheduler_profilers
+import dask_profiling
 
 pytest_plugins = ["docker_compose"]
 
@@ -16,9 +17,9 @@ def core_test(client: distributed.Client, tmp_path: pathlib.Path) -> None:
 
     scheduler_prof_path = tmp_path / "profile.json"
     worker_prof_dir = tmp_path / "workers"
-    with scheduler_profilers.pyspy_on_scheduler(
+    with dask_profiling.pyspy_on_scheduler(
         scheduler_prof_path, client=client
-    ), scheduler_profilers.pyspy(worker_prof_dir, client=client):
+    ), dask_profiling.pyspy(worker_prof_dir, client=client):
         df.set_index("id").size.compute(client=client)
 
     with open(scheduler_prof_path) as f:
@@ -49,6 +50,7 @@ def test_local(tmp_path):
 
 def test_prctl_on_docker(module_scoped_container_getter, tmp_path):
     network_info = module_scoped_container_getter.get("scheduler").network_info[0]
+    time.sleep(1)  # HACK: wait for distributed to actually start
     client = distributed.Client(
         f"tcp://{network_info.hostname}:{network_info.host_port}", set_as_default=False
     )

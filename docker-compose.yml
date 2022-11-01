@@ -1,7 +1,7 @@
 services:
   scheduler:
     build: .
-    command: dask-scheduler
+    command: dask scheduler
     ports:
       - "8786:8786"
       - "8787:8787"
@@ -10,11 +10,17 @@ services:
       - seccomp:./moby-20.10.6-seccomp.json
   worker-1:
     build: .
-    command: dask-worker tcp://scheduler:8786
+    command: dask worker tcp://scheduler:8786
     depends_on:
       - scheduler
+    security_opt:
+      # Remove for docker >= 20.10.6
+      - seccomp:./moby-20.10.6-seccomp.json
   worker-2:
     build: .
-    command: dask-worker tcp://scheduler:8786
+    command: dask worker tcp://scheduler:8786
     depends_on:
       - scheduler
+    security_opt:
+      # Remove for docker >= 20.10.6
+      - seccomp:./moby-20.10.6-seccomp.json
