@@ -1188,17 +1188,6 @@ secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress", "p
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
-name = "viztracer"
-version = "0.12.3"
-description = "A debugging and profiling tool that can trace and visualize python code execution"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.extras]
-full = ["orjson", "rich"]
-
-[[package]]
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -1231,7 +1220,7 @@ heapdict = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "0276cdec3e7567a74c06f21bab18a2fed7697022f8ee1d8e20ce5952b205be96"
+content-hash = "b2d3ee352b81add010537b0188a851519197829bdebba04a3725bc52336f9c2e"
 
 [metadata.files]
 appnope = [
@@ -2109,29 +2098,6 @@ typing-inspect = [
 urllib3 = [
     {file = "urllib3-1.26.12-py2.py3-none-any.whl", hash = "sha256:b930dd878d5a8afb066a637fbb35144fe7901e3b209d1cd4f524bd0e9deee997"},
     {file = "urllib3-1.26.12.tar.gz", hash = "sha256:3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e"},
-]
-viztracer = [
-    {file = "viztracer-0.12.3-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:0b5199deb510135ebc39f6c177fd6baaa5419357184c8f4f4faf1050fe7ae34d"},
-    {file = "viztracer-0.12.3-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:791e5972cbe78462cc60ad39ed3455e18d117d1832ed5526fc224cf6cd1ccc7b"},
-    {file = "viztracer-0.12.3-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:60b4d1efc00d41fadfeb059449b37aebce9859a3a361055eefb6d276c7f98210"},
-    {file = "viztracer-0.12.3-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:ce1680c555fbcdb9127cb3b79a79a5c228cdb9b86bd3ae64e4bf4a3eed81a7b8"},
-    {file = "viztracer-0.12.3-cp36-cp36m-win_amd64.whl", hash = "sha256:037b5a3bed84331fc8a73470fdce5886f01ff16a0de80fb1c91c8dbc905f75aa"},
-    {file = "viztracer-0.12.3-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:e6112fb55841d3c113e68eed57d3b0fdd0c5c1320c18340c4f1d5d706b9f4314"},
-    {file = "viztracer-0.12.3-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:9edb45396628f558c188a335425046f332a7d675ea5cc4bf2977695cc42984b7"},
-    {file = "viztracer-0.12.3-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:38f050b20be193ec7962e035ac0edfb4c09fa7379aac099e24958f0adf81e575"},
-    {file = "viztracer-0.12.3-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:2db3a004287b8dc908a9d756d8500a0d35d8583b5c9b27e5e11e70cb66db689e"},
-    {file = "viztracer-0.12.3-cp37-cp37m-win_amd64.whl", hash = "sha256:c19e6f817ca91039db4d71759fdd2344bce537b76d328ab194e589eace7305fa"},
-    {file = "viztracer-0.12.3-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:a6d1f29719b2f1f7acd3302200078533c8a2b7ab622e22a161f3b168832d6a6c"},
-    {file = "viztracer-0.12.3-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ed3da43c51aee0cfc4fef0be930055a55cfdc945369a46c5701308f3dd554d08"},
-    {file = "viztracer-0.12.3-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:e1abd3c5d45d33e5646e38ae8bc3e7c8328f46fd61e2fefae30dc1629d3f7646"},
-    {file = "viztracer-0.12.3-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:ca2678e2532670cb63830bb7028138c869aa4e660761be29288da0bc1e36bbd6"},
-    {file = "viztracer-0.12.3-cp38-cp38-win_amd64.whl", hash = "sha256:f13be5d4f8b882dc36d5d19e08ce4d5f240b6bb8699bfe67dfeaac25d3ab6dc8"},
-    {file = "viztracer-0.12.3-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:4553a91c50b35fa4c1b384409ac48e66f0b7d601298bc89fa91b79dbe57f1f20"},
-    {file = "viztracer-0.12.3-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:67bd0b662d4daae938e73aab51bd85828bb136804fedc8cb790fa027cc706b90"},
-    {file = "viztracer-0.12.3-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:f4ae5939da81c5dea8c7f604d836c03d1463f6c3e40ceb7f2afeca830c448d85"},
-    {file = "viztracer-0.12.3-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:3abfc20898607a390c24f91ba735460044a56dddee8546653238fe469a25ba61"},
-    {file = "viztracer-0.12.3-cp39-cp39-win_amd64.whl", hash = "sha256:102b72b4159f6825099dc47ce903ddd93cc5bbc29be27bd9f8c5c8951f9e7b9f"},
-    {file = "viztracer-0.12.3.tar.gz", hash = "sha256:64488c3b6a15121fe5b109dd7a5b20bed9e87a7cc41a911c48c453eaf8a59d96"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
