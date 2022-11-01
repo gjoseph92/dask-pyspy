@@ -128,6 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+.DS_Store
 .vscode
 dask-worker-space
 profile.json
