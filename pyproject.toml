@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "dask-pyspy"
-version = "0.3.0"
+version = "0.4.0"
 description = "Profile dask distributed clusters with py-spy"
 authors = ["Gabe Joseph <gjoseph92@gmail.com>"]
 license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
